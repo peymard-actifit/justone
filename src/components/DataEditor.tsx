@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2, Edit, Globe, Tag, Save } from 'lucide-react'
 import type { DataField, FieldType, FieldValue } from '../types/database'
+import TranslateButton from './TranslateButton'
 
 interface DataEditorProps {
   fields: DataField[]
@@ -108,6 +109,28 @@ export default function DataEditor({
           </p>
         </div>
         <div className="flex gap-3">
+          <TranslateButton
+            onTranslate={async (lang) => {
+              const user = JSON.parse(localStorage.getItem('user') || '{}')
+              const res = await fetch('/api/translate/auto', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-user-id': user.id,
+                },
+                body: JSON.stringify({
+                  translateAll: true,
+                  targetLanguage: lang,
+                }),
+              })
+              if (res.ok) {
+                const data = await res.json()
+                setLocalFields(data.profile.fields)
+                alert(`Tous les champs traduits en ${lang}`)
+              }
+            }}
+            availableLanguages={Array.from(new Set(localFields.flatMap(f => f.values.map(v => v.language))))}
+          />
           <button
             onClick={() => setShowAddField(true)}
             className="btn btn-secondary"
@@ -220,17 +243,44 @@ export default function DataEditor({
                 </div>
               ))}
               
-              {/* Add language button */}
-              <button
-                onClick={() => {
-                  const lang = prompt('Code langue (ex: en, es, de) :')
-                  if (lang) addLanguage(field.id, lang)
-                }}
-                className="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1"
-              >
-                <Plus className="w-3 h-3" />
-                Ajouter une langue
-              </button>
+              {/* Translate and Add language buttons */}
+              <div className="flex items-center gap-2 pt-2">
+                <TranslateButton
+                  fieldId={field.id}
+                  onTranslate={async (lang) => {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}')
+                    const res = await fetch('/api/translate/auto', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': user.id,
+                      },
+                      body: JSON.stringify({
+                        fieldId: field.id,
+                        targetLanguage: lang,
+                      }),
+                    })
+                    if (res.ok) {
+                      const data = await res.json()
+                      // Mettre à jour le champ traduit
+                      setLocalFields(localFields.map(f => 
+                        f.id === field.id ? data.field : f
+                      ))
+                    }
+                  }}
+                  availableLanguages={field.values.map(v => v.language)}
+                />
+                <button
+                  onClick={() => {
+                    const lang = prompt('Code langue (ex: en, es, de) :')
+                    if (lang) addLanguage(field.id, lang)
+                  }}
+                  className="text-xs text-primary-400 hover:text-primary-300 flex items-center gap-1 px-2 py-1 rounded hover:bg-white/5"
+                >
+                  <Plus className="w-3 h-3" />
+                  Ajouter une langue
+                </button>
+              </div>
             </div>
           </div>
         ))}
