@@ -18,19 +18,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Vérifier que KV est disponible
-  if (!kv) {
-    console.error('Vercel KV is not initialized')
-    return res.status(500).json({ 
-      error: 'Base de données non disponible',
-      hint: 'Vérifiez que la base Redis "just1" est connectée au projet sur Vercel'
-    })
-  }
-
   try {
     const { username, password, fullName, email } = req.body
-    
-    console.log('Register attempt:', { username, email, fullName })
 
     if (!username || !password || !fullName || !email) {
       return res.status(400).json({ error: 'Tous les champs sont requis' })
@@ -80,14 +69,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       message: errorMessage,
       stack: errorStack,
       body: req.body,
-      kvConnected: !!kv,
+      envCheck: {
+        hasKvUrl: !!process.env.KV_URL,
+        hasKvRestApiUrl: !!process.env.KV_REST_API_URL,
+        hasKvRestApiToken: !!process.env.KV_REST_API_TOKEN,
+        hasRedisUrl: !!process.env.REDIS_URL,
+      }
     })
     
     return res.status(500).json({ 
       error: 'Erreur serveur',
       details: errorMessage,
-      hint: 'Vérifiez que Vercel KV (Redis) est bien connecté au projet'
+      hint: 'Vérifiez que la base Redis "just1" est connectée au projet sur Vercel et redéployez'
     })
   }
 }
-
