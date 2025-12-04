@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { kv } from '@vercel/kv'
 import bcrypt from 'bcryptjs'
+import { kvGet } from '../../src/lib/redis-client'
 
 interface User {
   id: string
@@ -25,13 +25,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Récupérer l'ID utilisateur par username
-    const userId = await kv.get<string>(`user:username:${username}`)
+    const userId = await kvGet<string>(`user:username:${username}`)
     if (!userId) {
       return res.status(401).json({ error: 'Identifiant ou mot de passe incorrect' })
     }
 
     // Récupérer l'utilisateur
-    const user = await kv.get<User>(`user:${userId}`)
+    const user = await kvGet<User>(`user:${userId}`)
     if (!user) {
       return res.status(401).json({ error: 'Identifiant ou mot de passe incorrect' })
     }
