@@ -63,14 +63,16 @@ export default function Register() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || 'Une erreur est survenue')
+        console.error('Register API error:', data)
+        setError(data.error || data.details || 'Une erreur est survenue')
         return
       }
 
       localStorage.setItem('user', JSON.stringify(data.user))
       navigate('/dashboard')
-    } catch {
-      setError('Erreur de connexion au serveur')
+    } catch (error) {
+      console.error('Register fetch error:', error)
+      setError(`Erreur de connexion au serveur: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsLoading(false)
     }
