@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { kv } from '@vercel/kv'
 
-const DEEPL_API_KEY = 'c3a85c31-e218-4a6e-9c7c-e7dcfe5974ad'
+const DEEPL_API_KEY = process.env.DEEPL_API_KEY || ''
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate'
 
 // Fonction pour traduire un texte avec DeepL
