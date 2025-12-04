@@ -17,7 +17,7 @@ Application complète de gestion de CVs avec base de données flexible, multi-la
 
 ### Import de Fichiers
 - Formats supportés : PDF, Word, LaTeX, Excel, PowerPoint
-- Analyse automatique par IA
+- Analyse automatique par OpenAI
 - Extraction et structuration des données
 
 ### Formats de CV
@@ -41,6 +41,15 @@ Le projet est connecté à :
 - **Vercel** : justone-one.vercel.app
 - **Redis KV** : Base "just1" connectée
 
+## ⚙️ Configuration Variables d'Environnement Vercel
+
+**Important** : Configurez ces variables sur Vercel (Settings → Environment Variables) :
+
+- `OPENAI_API_KEY` : Votre clé API OpenAI
+- `DEEPL_API_KEY` : Votre clé API DeepL
+
+Les variables sont automatiquement disponibles dans les Serverless Functions.
+
 ## 💻 Développement
 
 ```bash
@@ -48,13 +57,21 @@ npm install
 npm run dev
 ```
 
+Pour le développement local, créez un fichier `.env.local` avec vos clés API.
+
 ## 📁 Structure
 
 ```
 justone/
 ├── api/                    # Serverless Functions
+│   ├── ai/                # Fonctionnalités OpenAI
+│   │   ├── openai.ts
+│   │   ├── analyze-file.ts
+│   │   ├── adapt-to-offer.ts
+│   │   ├── improve-content.ts
+│   │   └── find-jobs.ts
+│   ├── translate/         # Traductions DeepL
 │   ├── profile/           # Gestion du profil utilisateur
-│   ├── import/            # Import et analyse de fichiers
 │   ├── formats/           # Formats de CV
 │   ├── export/            # Export des données
 │   └── admin/             # Mode administrateur
@@ -62,39 +79,35 @@ justone/
 │   ├── components/
 │   │   ├── DataEditor.tsx     # Éditeur de données flexible
 │   │   ├── AdminGate.tsx      # Porte d'accès admin
-│   │   └── NavigationBar.tsx  # Navigation avec modules
+│   │   ├── NavigationBar.tsx  # Navigation avec modules
+│   │   └── TranslateButton.tsx # Bouton de traduction
 │   ├── pages/
 │   │   ├── Home.tsx           # Page d'accueil épurée
 │   │   ├── Dashboard.tsx      # Dashboard principal
 │   │   ├── AIPage.tsx         # Interface IA
 │   │   └── FormatsPage.tsx    # Gestion des formats
-│   ├── types/
-│   │   ├── database.ts        # Types base de données
-│   │   └── user.ts            # Types utilisateur
-│   └── App.tsx
+│   └── types/
+│       ├── database.ts        # Types base de données
+│       └── user.ts            # Types utilisateur
 └── package.json
 ```
 
-## 🔧 Configuration API IA
+## ✨ Fonctionnalités
 
-Pour activer les fonctionnalités IA, configurez votre API dans les variables d'environnement Vercel :
-
-```
-AI_API_KEY=votre_cle_api
-AI_API_URL=https://votre-api.com
-```
-
-## 📝 Prochaines Étapes
-
-- [ ] Intégration API IA réelle pour l'analyse de fichiers
-- [ ] Interface de traduction automatique
-- [ ] Mapping interactif tags ↔ données pour les formats
-- [ ] Implémentation complète des modules (JustWeb, JustBoost, etc.)
-- [ ] Système de templates de CV avec prévisualisation
+- ✅ Authentification (inscription/connexion)
+- ✅ Base de données flexible avec tags
+- ✅ Traductions automatiques (DeepL)
+- ✅ Analyse de fichiers CV (OpenAI)
+- ✅ Adaptation de CV à des offres
+- ✅ Amélioration de contenu avec IA
+- ✅ Recherche d'offres d'emploi
+- ✅ Export des données brutes
+- ✅ Interface moderne avec Tailwind CSS
+- ✅ Multi-langues
 
 ## 🔐 Sécurité
 
 - Authentification par mot de passe (bcrypt)
 - Mode administrateur protégé par code
 - Données utilisateur isolées par userId
-- Accès uniquement aux données de l'utilisateur connecté
+- Clés API dans variables d'environnement (jamais dans le code)
